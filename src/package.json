@@ -1,7 +1,7 @@
 {
   "name": "com.racer.ez_utilities",
   "displayName": "EzUtilities",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "unity": "2020.3",
   "description": "A collection of versatile utility scripts to streamline your Unity development workflow.\n\nAchieve a 100x boost in iteration speed and efficiency!",
   "documentationUrl": "https://ebukaracer.github.io/EzUtilities",

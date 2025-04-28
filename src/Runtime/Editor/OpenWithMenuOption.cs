@@ -3,7 +3,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using UnityEditor;
-using UnityEngine;
 using Debug = UnityEngine.Debug;
 
 namespace Racer.EzUtilities.Editor
