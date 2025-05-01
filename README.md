@@ -19,6 +19,7 @@
 
 ## Setup
 After successfully installing the package through the package manager, navigate to the menu option: `Racer > EzUtilities > Import Scripts(Force)`. This will allow you to include and import the scripts in your project. If there are any updates to the package, repeat this operation to incorporate those updates. Additionally, include the `asmdef` file to save compilation time and improve the organization of the imported scripts; however, you can omit it for the editor scripts:
+
 ![img](https://raw.githubusercontent.com/ebukaracer/ebukaracer/unlisted/EzUtilities-Images/IMPORT.png)
 
 After successful import, check out [this](https://ebukaracer.github.io/ebukaracer/md/SETUPGUIDE.html)
