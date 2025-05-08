@@ -60,7 +60,7 @@ namespace Racer.EzUtilities.Editor
                     break;
                 }
                 case >= StatusCode.Failure:
-                    Debug.LogWarning($"Failed to remove package: '{PkgId}'\n{_removeRequest.Error.message}");
+                    Debug.LogError($"Failed to remove package: '{PkgId}'\n{_removeRequest.Error.message}");
                     break;
             }
 
