@@ -1,0 +1,26 @@
+{
+  "name": "com.racer.ezutilities.extras",
+  "displayName": "EzUtilities.Extras",
+  "version": "1.0.0",
+  "unity": "2020.3",
+  "description": "EzUtilities.Extras includes additional utility scripts and tools for Unity development.\n\nAfter installation, use the context menu: 'Racer > EzUtilities.Extras > Import Scripts (force)' to import any runtime scripts needed for your project. Be sure to include the assembly definition file (asmdef) from the import window as well.\n\nNote: Some of the runtime scripts depend on DOTween to function properly. Ensure that you have the DOTween module set up before importing any scripts that rely on it. Please refer to the package documentation for more information.",
+  "documentationUrl": "https://ebukaracer.github.io/EzUtilities",
+  "licensesUrl": "https://ebukaracer.github.io/ebukaracer/md/LICENSE.html",
+  "changelogUrl": "https://github.com/ebukaracer/EzUtilities/tags",
+  "author": {
+    "name": "Racer",
+    "url": "https://github.com/ebukaracer"
+  },
+  "category": "tool",
+  "keywords": [
+    "utility",
+    "tweening",
+    "time",
+    "fps",
+    "ui"
+  ],
+  "dependencies": {
+    "com.racer.ezutilities.core": "1.0.0",
+    "com.racer.ezutilities.common": "1.0.0"
+  }
+}
