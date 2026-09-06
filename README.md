@@ -12,11 +12,11 @@
 - 🎯 **Editor Enhancements**: Improve your workflow with helpful editor scripts.
 
 ## Installation
-| Name               | Package URL                                                                                                   | How to Install from Package Manager                                                |
-| ------------------ | ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| EzUtilities.Core   | [https://github.com/ebukaracer/EzUtilities.git#core](https://github.com/ebukaracer/EzUtilities/tree/core)     | Select **Install package from git URL** and paste the *package url* inside the box |
-| EzUtilities.Common | [https://github.com/ebukaracer/EzUtilities.git#common](https://github.com/ebukaracer/EzUtilities/tree/common) | '''                                                                                |
-| EzUtilities.Extras | [https://github.com/ebukaracer/EzUtilities.git#extras](https://github.com/ebukaracer/EzUtilities/tree/extras) | '''                                                                                |
+| Name               | Package URL                                          | How to Install from Package Manager                                                |
+| ------------------ | ---------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| EzUtilities.Core   | https://github.com/ebukaracer/EzUtilities.git#core   | Select **Install package from git URL** and paste the *package url* inside the box |
+| EzUtilities.Common | https://github.com/ebukaracer/EzUtilities.git#common | ''                                                                                 |
+| EzUtilities.Extras | https://github.com/ebukaracer/EzUtilities.git#extras | ''                                                                                 |
 
 ## Setup
 Unlike `EzUtilities.Common` and `EzUtilities.Core`, `EzUtilities.Extras` is bundled with a `.unitypackage` containing various utility scripts that can be imported into your project. Some of these scripts depend on `EzUtilities.Common` and `EzUtilities.Core` to work, while some depend on the `DOTween` package. You must install these dependency packages before installing the `EzUtilities.Extras` package to avoid compile-time errors. 

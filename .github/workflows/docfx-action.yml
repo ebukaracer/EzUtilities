@@ -1,4 +1,4 @@
-name: Setup docfx with gh-pages
+name: Set up docfx with gh-pages
 
 # Trigger the action on push to master
 on:
