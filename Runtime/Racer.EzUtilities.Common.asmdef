@@ -1,0 +1,13 @@
+{
+  "name": "Racer.EzUtilities.Common",
+  "rootNamespace": "Racer",
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
