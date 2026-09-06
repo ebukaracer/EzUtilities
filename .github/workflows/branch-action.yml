@@ -1,0 +1,60 @@
+name: Deploy to separate branch
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/Common/**'
+      - 'src/Core/**'
+      - 'src/Extras/**'
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - source_dir: src/Common
+            target_branch: common
+          - source_dir: src/Core
+            target_branch: core
+          - source_dir: src/Extras
+            target_branch: extras
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Prepare package content
+        run: |
+          if [ ! -d "${{ matrix.source_dir }}" ]; then
+            echo "Source directory not found: ${{ matrix.source_dir }}"
+            exit 1
+          fi
+
+          mkdir -p temp_src
+          cp -a "${{ matrix.source_dir }}"/. temp_src/
+
+      - name: Switch to orphan branch
+        run: |
+          git checkout --orphan "${{ matrix.target_branch }}"
+          git reset --hard
+
+      - name: Copy package files to branch root
+        run: |
+          cp -a temp_src/. .
+          rm -rf temp_src
+
+      - name: Commit and push package branch
+        run: |
+          git add .
+          git commit -m "Publish ${{ matrix.target_branch }} package (latest)" || echo "No changes to commit"
+          git push origin "${{ matrix.target_branch }}" --force
