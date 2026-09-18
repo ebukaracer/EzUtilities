@@ -1,0 +1,250 @@
+name: Deploy package branches
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/Common/**'
+      - 'src/Core/**'
+      - 'src/Extras/**'
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  # ------------------------------------------------------------
+  # Detect which package folders changed
+  # ------------------------------------------------------------
+
+  detect-changes:
+    runs-on: ubuntu-latest
+
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+      has_changes: ${{ steps.matrix.outputs.has_changes }}
+      extras_runtime_changed: ${{ steps.matrix.outputs.extras_runtime_changed }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Build deployment matrix
+        id: matrix
+        shell: bash
+        run: |
+          # --------------------------------------------------------
+          # Manual runs:
+          # Deploy all package branches and rebuild Extras package.
+          # --------------------------------------------------------
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            MATRIX='{
+              "include": [
+                {
+                  "source_dir": "src/Common",
+                  "target_branch": "common"
+                },
+                {
+                  "source_dir": "src/Core",
+                  "target_branch": "core"
+                },
+                {
+                  "source_dir": "src/Extras",
+                  "target_branch": "extras"
+                }
+              ]
+            }'
+
+            echo "matrix=$(echo "$MATRIX" | jq -c .)" >> "$GITHUB_OUTPUT"
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            echo "extras_runtime_changed=true" >> "$GITHUB_OUTPUT"
+
+            echo "Manual run detected."
+            echo "All package branches will be deployed."
+            echo "Extras UnityPackage will also be rebuilt."
+
+            exit 0
+          fi
+
+          BEFORE="${{ github.event.before }}"
+          AFTER="${{ github.sha }}"
+
+          echo "Checking changes:"
+          echo "  Before: $BEFORE"
+          echo "  After:  $AFTER"
+
+          INCLUDE='[]'
+          EXTRAS_RUNTIME_CHANGED=false
+
+          # --------------------------------------------------------
+          # Common
+          # --------------------------------------------------------
+
+          if ! git diff --quiet \
+            "$BEFORE" \
+            "$AFTER" \
+            -- 'src/Common/**'; then
+
+            echo "Changes detected in src/Common"
+
+            INCLUDE=$(echo "$INCLUDE" | jq \
+              '. + [{
+                "source_dir": "src/Common",
+                "target_branch": "common"
+              }]')
+          fi
+
+          # --------------------------------------------------------
+          # Core
+          # --------------------------------------------------------
+
+          if ! git diff --quiet \
+            "$BEFORE" \
+            "$AFTER" \
+            -- 'src/Core/**'; then
+
+            echo "Changes detected in src/Core"
+
+            INCLUDE=$(echo "$INCLUDE" | jq \
+              '. + [{
+                "source_dir": "src/Core",
+                "target_branch": "core"
+              }]')
+          fi
+
+          # --------------------------------------------------------
+          # Extras branch deployment
+          #
+          # Any change under src/Extras/** causes the extras branch
+          # to be recreated/updated.
+          # --------------------------------------------------------
+
+          if ! git diff --quiet \
+            "$BEFORE" \
+            "$AFTER" \
+            -- 'src/Extras/**'; then
+
+            echo "Changes detected in src/Extras"
+
+            INCLUDE=$(echo "$INCLUDE" | jq \
+              '. + [{
+                "source_dir": "src/Extras",
+                "target_branch": "extras"
+              }]')
+          fi
+
+          # --------------------------------------------------------
+          # Extras UnityPackage rebuild
+          #
+          # This is intentionally narrower than src/Extras/**.
+          #
+          # The package only rebuilds when this source path changes:
+          #
+          # src/Extras/Dependencies~/Runtime/**
+          #
+          # which becomes this path on the extras branch:
+          #
+          # Dependencies~/Runtime/**
+          # --------------------------------------------------------
+
+          if ! git diff --quiet \
+            "$BEFORE" \
+            "$AFTER" \
+            -- 'src/Extras/Dependencies~/Runtime/**'; then
+
+            echo "Changes detected in Extras Runtime"
+            EXTRAS_RUNTIME_CHANGED=true
+          fi
+
+          # --------------------------------------------------------
+          # Outputs
+          # --------------------------------------------------------
+
+          COUNT=$(echo "$INCLUDE" | jq 'length')
+
+          echo \
+            "extras_runtime_changed=$EXTRAS_RUNTIME_CHANGED" \
+            >> "$GITHUB_OUTPUT"
+
+          if [ "$COUNT" -eq 0 ]; then
+            echo 'matrix={"include":[]}' >> "$GITHUB_OUTPUT"
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+
+            echo "No package folders changed."
+            exit 0
+          fi
+
+          MATRIX=$(jq -nc \
+            --argjson include "$INCLUDE" \
+            '{include: $include}')
+
+          echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
+          echo "has_changes=true" >> "$GITHUB_OUTPUT"
+
+          echo "Deployment matrix:"
+          echo "$MATRIX" | jq .
+
+          echo
+          echo "Extras Runtime changed:"
+          echo "$EXTRAS_RUNTIME_CHANGED"
+
+  # ------------------------------------------------------------
+  # Deploy only the package branches whose source folders changed
+  #
+  # src/Common → common
+  # src/Core   → core
+  # src/Extras → extras
+  # ------------------------------------------------------------
+
+  publish:
+    needs: detect-changes
+
+    if: needs.detect-changes.outputs.has_changes == 'true'
+
+    strategy:
+      fail-fast: false
+
+      matrix: ${{ fromJSON(needs.detect-changes.outputs.matrix) }}
+
+    uses: ebukaracer/gh-workflows/.github/workflows/deploy-branch.yml@main
+
+    with:
+      source_path: ${{ matrix.source_dir }}
+      target_branch: ${{ matrix.target_branch }}
+      commit_message: 'Publish ${{ matrix.target_branch }} package (latest)'
+
+  # ------------------------------------------------------------
+  # Build Extras UnityPackage
+  #
+  # Runs only when:
+  #
+  # src/Extras/Dependencies~/Runtime/**
+  #
+  # changed on main.
+  #
+  # Because this job depends on "publish", the extras branch has
+  # already been created/updated before build-unitypackage checks
+  # it out.
+  # ------------------------------------------------------------
+
+  build-extras-unitypackage:
+    needs:
+      - detect-changes
+      - publish
+
+    if: |
+      needs.publish.result == 'success' &&
+      needs.detect-changes.outputs.extras_runtime_changed == 'true'
+
+    uses: ebukaracer/gh-workflows/.github/workflows/build-unitypackage.yml@main
+
+    with:
+      target_branch: 'extras'
+      source_path: 'Dependencies~/Runtime'
+      unity_import_path: 'Assets/EzUtilities/Extras/Runtime'
+      output_path: 'Dependencies~/Package/EzUtilities.Extras.unitypackage'

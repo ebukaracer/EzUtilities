@@ -1,0 +1,19 @@
+{
+  "name": "com.racer.ezutilities.extras",
+  "displayName": "EzUtilities.Extras",
+  "version": "0.1.0",
+  "unity": "2022.3",
+  "description": "This package includes additional utility runtime scripts for robust Unity projects.\n\nAfter installation, use the context menu: 'Racer > EzUtilities.Extras > Import Scripts (force)' to import any runtime scripts needed for your project. Be sure to include the assembly definition file (asmdef) from the import window as well.\n\nNote: Some of the runtime scripts depend on DOTween to function properly. Ensure that you have the DOTween module set up before importing any script that relies on it.",
+  "documentationUrl": "https://ebukaracer.github.io/EzUtilities",
+  "licensesUrl": "https://ebukaracer.github.io/ebukaracer/md/LICENSE.html",
+  "changelogUrl": "https://github.com/ebukaracer/EzUtilities/tags",
+  "author": {
+    "name": "Racer",
+    "url": "https://github.com/ebukaracer"
+  },
+  "category": "Tool",
+  "dependencies": {
+    "com.racer.ezutilities.core": "0.1.0",
+    "com.racer.ezutilities.common": "0.1.0"
+  }
+}
